@@ -1,0 +1,52 @@
+name: Deploy Ionic Angular App to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main  # Deploys on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # 2. Set up Node.js (matching your Ionic project version)
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Change this version to match your project's Node.js version
+
+      # 3. Cache Node modules to speed up subsequent builds
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 5. Build the Ionic Angular project for production
+      - name: Build the Ionic app
+        run: npm run build -- --prod
+
+      # 6. Install Firebase CLI
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      # 7. Authenticate with Firebase using service account credentials stored in GitHub Secrets
+      - name: Authenticate Firebase
+        run: |
+          echo "${{ secrets.FIREBASE_CREDENTIALS }}" > $HOME/firebase-credentials.json
+          firebase login --token "$(cat $HOME/firebase-credentials.json)"
+
+      # 8. Deploy the app to Firebase Hosting
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --token "$(cat $HOME/firebase-credentials.json)"
