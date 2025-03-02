@@ -29,6 +29,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      
+      - name: Install angular cli
+        run: npm install -g @angular/cli
+        
       # 4. Install dependencies
       - name: Install dependencies
         run: npm install
