@@ -35,7 +35,7 @@ jobs:
 
       # 5. Build the Ionic Angular project for production
       - name: Build the Ionic app
-        run: npm build --configuration production
+        run: ng build --configuration production
 
       # 6. Install Firebase CLI
       - name: Install Firebase CLI
